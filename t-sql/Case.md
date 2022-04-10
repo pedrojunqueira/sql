@@ -1,4 +1,4 @@
-Case is like works like a if then.
+Case works like a if then.
 It will evaluate the test for true/false and return
 the first instance it is true.
 
