@@ -1,5 +1,7 @@
-Window functions happens ate the row level
-and is used with the over() clause
+Window functions is a way to manipulate how the aggregate or analytical
+build in functions behave within a "window" of rows.
+
+This can be done via the user of the `over()` function.
 
 ```sql
 select A.EmployeeNumber,
@@ -11,9 +13,10 @@ from tblEmployee as E join tblAttendance as A
 on E.EmployeeNumber = A.EmployeeNumber
 ```
 
-the above query TotalAttendance will sum (aggregate all sales for all rows)
+The above query TotalAttendance column will sum the aggregate of all sales for all rows in the
+query because no argument was passed in the `over()`
 
-Over can take 3 arguments in aggregate functions
+Over can take 3 arguments when used with aggregate functions
 
 `partition`
 
@@ -21,13 +24,13 @@ Over can take 3 arguments in aggregate functions
 
 `rows/range`
 
-all of them are option arguments for aggregate functions
+all of them are optional arguments for aggregate functions
 
 the `partition` argument will define the "window" where the aggregation will
 happen.
 
-On the example above it want the sum for each employeeNumber then
-it is possible to partition it.
+On the example above if you want the sum the total attendance for each employeeNumber then
+it is possible by partitioning it.
 
 ```sql
 select A.EmployeeNumber, A.AttendanceMonth,
@@ -35,14 +38,15 @@ A.NumberAttendance,
 sum(A.NumberAttendance) over(PARTITION BY E.EmployeeNumber) as SumAttendance,
 ```
 
-the order by will define how the behavior of the aggregation will be within the
+the `order by` will define how the behavior of the aggregation will be within the
 window
 
-if added order by AttendanceMonth then it will be a running total
-each row in the order of Attendance month from top to bottom within the window of the
+if we add `order by` AttendanceMonth then it will be a running total
+in the order of Attendance month from top to bottom within the window of the
 partition.
 
-this because if there is no row or range argument the default will be
+this because if there is no `row` or `range` argument after the `order by` the default
+behavior will be
 
 `range between unbounded preceding and current row`
 
@@ -53,47 +57,49 @@ SUM(A.NumberAttendance) over(PARTITION BY E.EmployeeNumber ORDER BY A.Attendance
 SUM(A.NumberAttendance) over(PARTITION BY E.EmployeeNumber ORDER BY A.AttendanceMonth) as RollingTotal2
 ```
 
-RollingTotal and RollingTotal2 will produce the same result.
+The RollingTotal and RollingTotal2 columns will produce the same result.
 
-the row argument will take
-preceding and following in the range
+Now explaining the `row` and the `range` arguments of `order by`...
 
-preceding is the "from" row on the window to apply the aggregation
-following is the "to" row on the window to apply the aggregation
+The row/range argument will take the key words
+`preceding` and `following` to determine the scope within the window for the current row.
+
+`preceding` defines the "from" row on the window to apply the aggregation
+`following` defines the "to" row on the window to apply the aggregation
 
 for example
 
 `range between unbounded preceding and unbounded following` will take the full window.
 
-this does not make sense but and will produce the same result of leaving the order by blank
-because this is the default behavior for the partition aggregation.
+The above example is a bit useless because it will produce the same result of leaving the order by blank
+because this is the default behavior.
 
-Therefore there are 3 possible scenario to use `range`
+There are 3 possible scenario to use `range`
 
-    1.`range between unbounded preceding and unbounded following`
-    2.`range between unbounded preceding and current row`
-    3.`range between current row and unbounded following`
+    1.range between unbounded preceding and unbounded following
+    2.range between unbounded preceding and current row
+    3.range between current row and unbounded following
 
-There is better and more efficient alternative to range which is the `rows` clause
+As mentioned previously, there is a better and more efficient alternative to `range` which is the `rows` clause
 
-it is faster and more flexible
+It is faster and more flexible
 
-the syntax is the same but it accepts the number of rows preceding and following
+The syntax is the same as in `range` but it also accepts the number of rows preceding and following
 
 for example
 
 `rows between 1 preceding and 1 following`
 
-this will have a rolling window that will consider the previous row and the following
-row in given the order by parameter.
+This will have a rolling window that will consider the previous row and the following
+row of the row evaluating the aggregation inside the window.
 
-Range and Rows will behave exactly the same with the exertion that if there is a
-tie in the order by `range` will treat ties the same (repeat the value) and
-rows will treat differently i.e. the running total will be different for each row.
+Range and Rows will behave exactly the same with the exception that if there is a
+tie in the rows defined in the order by, then `range` will treat ties the same (repeat the value),
+however, `rows` will treat differently i.e. the running total will be different for each row.
 
-Apart from aggregate functions
+Besides aggregate functions...
 
-very useful functions used with `over()` in a window function are "ranking functions"
+other very useful functions used with `over()` in a window function are "ranking functions"
 
 `rank()`
 `dense_rank()`
