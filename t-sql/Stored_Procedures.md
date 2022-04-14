@@ -11,7 +11,7 @@ begin
 end
 ```
 
-to execure procedure
+to execute procedure
 
 ```sql
 exec procedureName
@@ -41,7 +41,7 @@ execute NameEmployees 223
 exec NameEmployees 323
 
 -- or
-exec NameEmployees◊ @employeeNumber = 323
+exec NameEmployees @employeeNumber = 323
 
 ```
 
